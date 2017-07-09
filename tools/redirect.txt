@@ -1,0 +1,88 @@
+#--------------------#
+# no additional info #
+#--------------------#
+
+/<text>[ ]*<\/text>[ ]*$/ {
+  print $0 > "wiki/words-only.txt";
+  next;
+}
+
+
+#----------------#
+# part of speech #
+#----------------#
+
+/<text>[ ]*(\{\{a\|US}})?[ ]*(noun[ ]*)?(verb[ ]*)?(adjective[ ]*)?(adverb[ ]*)?<\/text>/ {
+  print $0 > "wiki/pos-only.txt";
+  next;
+}
+
+
+#--------------------#
+# pronunciation plus #
+#--------------------#
+
+/<text>[ ]*<ipa>[^<]*<\/ipa>*[ ]*(noun[ ]*)?(verb[ ]*)?(adjective[ ]*)?(adverb[ ]*)?<\/text>/ {
+  print $0 > "wiki/pronunciation-plus.txt";
+  next;
+}
+
+/<text>[ ]*\{\{a\|US}}[ ]*<ipa>[^<]*<\/ipa>*[ ]*(noun[ ]*)?(verb[ ]*)?(adjective[ ]*)?(adverb[ ]*)?<\/text>[ ]*/ {
+  print $0 > "wiki/pronunciation-plus.txt";
+  next;
+}
+
+# if we have UK pronunciation but not US, use UK
+/<text>[ ]*\{\{a\|UK}}[ ]*<ipa>[^<]*<\/ipa>*[ ]*(noun[ ]*)?(verb[ ]*)?(adjective[ ]*)?(adverb[ ]*)?<\/text>[ ]*/ {
+  print $0 > "wiki/pronunciation-plus.txt";
+  next;
+}
+
+/<text>[ ]*<ipa>[^<]*<\/ipa>[ ]*\{\{a\|UK}}[ ]*(noun[ ]*)?(verb[ ]*)?(adjective[ ]*)?(adverb[ ]*)?<\/text>/ {
+  print $0 > "wiki/pronunciation-plus.txt";
+  next;
+}
+
+
+#------#
+# misc #
+#------#
+
+/IPA letters/ {
+  print $0 > "wiki/ipa-letters.txt";
+  next;
+}
+
+/\|noun/ {
+  print $0 > "wiki/diff-pron.txt";
+  next;
+}
+
+/\|verb/ {
+  print $0 > "wiki/diff-pron.txt";
+  next;
+}
+
+/\|adjective/ {
+  print $0 > "wiki/diff-pron.txt";
+  next;
+}
+
+/\|adverb/ {
+  print $0 > "wiki/diff-pron.txt";
+  next;
+}
+
+/(noun|verb|adjective|adverb)[ ]*(\{\{a\|US}}[ ]*)?<ipa>[^<]*<\/ipa>[ ]*(noun|verb|adjective|adverb)/ {
+  print $0 > "wiki/diff-pron.txt";
+  next;
+}
+
+
+#-----------------------------------#
+# send unrecognized lines to stdout #
+#-----------------------------------#
+
+// {
+  print $0;
+}

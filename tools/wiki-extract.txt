@@ -1,0 +1,269 @@
+#!/bin/bash
+
+cat enwiktionary.xml \
+  | sed '/^<mediawiki/d' \
+  | sed '/^[ ]*<model>wikitext<\/model>$/d' \
+  | sed '/^[ ]*<format>text\/x-wiki<\/format>$/d' \
+  | sed '/^[ ]*<contributor>$/d' \
+  | sed '/^[ ]*<\/contributor>$/d' \
+  | sed '/^[ ]*<revision>$/d' \
+  | sed '/^[ ]*<\/revision>$/d' \
+  | sed '/^[ ]*<minor \/>$/d' \
+  | sed '/^[ ]*<id>[0-9]*<\/id>$/d' \
+  | sed '/^[ ]*<ip>[\.:0-9A-F]*<\/ip>$/d' \
+  | sed '/^[ ]*<ns>[0-9]*<\/ns>$/d' \
+  | sed '/^[ ]*<parentid>[0-9]*<\/parentid>$/d' \
+  | sed '/^[ ]*<sha1>[0-9a-z]*<\/sha1>$/d' \
+  | sed '/^[ ]*<namespace [^<]*<\/namespace>$/d' \
+  | sed '/^<sup>[^<]*<\/sup>$/d' \
+  | sed '/^[ ]*<username>[^<]*<\/username>$/d' \
+  | sed 's/^[ ]*<comment>[^<]*<\/comment>$//' \
+  | sed 's/<comment[^\/]*\/>//' \
+  | sed '/^[ ]*<restrictions>[^<]*<\/restrictions>$/d' \
+  | sed '/^[ ]*<timestamp>[0-9:ZT-]*<\/timestamp>$/d' \
+ \
+  | sed 's/ xml:space="preserve"//' \
+  | sed 's/<page>/\n&\n/' \
+  | sed 's/<\/page>/\n&\n/' \
+  | sed 's/<title>/\n&/' \
+  | sed 's/<\/title>/&\n/' \
+  | sed 's/<text>/\n&\n/' \
+  | sed 's/<\/text>/\n&\n/' \
+  | sed 's/^=/\n&/' \
+ \
+  | sed '/^[ ]*<siteinfo>$/,/^[ ]*<\/siteinfo>$/d' \
+  | sed '/^<title>Wiktionary:[^<]*<\/title>$/,/^<\/text>$/d' \
+  | sed '/^<title>Appendix:[^<]*<\/title>$/,/^<\/text>$/d' \
+  | sed '/^<title>Help:[^<]*<\/title>$/,/^<\/text>$/d' \
+ \
+  | awk -f entryjunk.txt \
+ \
+  | sed 's/^\* //' \
+  | sed 's/\[http[^\]]*\]//' \
+  | sed 's/{{audio[^}]*}}//g' \
+  | sed 's/{{rhymes[^}]*}}//g' \
+  | sed 's/{{enPR|\([^}]*\)}},//g' \
+  | sed 's/{{enPR|\([^}]*\)}};//g' \
+  | sed 's/{{enPR|\([^}]*\)}}//g' \
+  | sed 's/IPAchar/IPA/g' \
+  | sed 's/|lang=en//g' \
+  | sed 's/{{IPA|\([^|}]*\)}}/<ipa>\1<\/ipa>/g' \
+  | sed 's/{{IPA|\([^|]*\)|[^}]*}}/<ipa>\1<\/ipa>/g' \
+ \
+  | sed 's/<page>/\r&/' \
+  | sed 's/<\/page>/&\r/' \
+  | tr '\n' ' ' \
+  | tr '\r' '\n' \
+ \
+  | sed '/^<page>[ ]*<\/page>$/d' \
+  | grep 'english!!!' \
+  | sed 's/english!!!//g' \
+ \
+  | sed 's/<page>[ ]*<title>//' \
+  | sed 's/<\/page>//' \
+  | sed 's/<\/title>[ ]*/\t/' \
+  | sed 's/&lt;!--[^-]*--&gt;//' \
+  | sed 's/<!---[^-]*--->//' \
+  | sed 's/<!--[^-]*-->//g' \
+  | grep -v '^[0-9]' \
+  | sed 's/[ ]*$//' \
+  | sed 's/<comment>[^<]*<\/comment>//' \
+ \
+  | sed 's/{{a|UK, US}}/{{a|US}}/g' \
+  | sed 's/{{a|US, UK}}/{{a|US}}/g' \
+  | sed 's/{{a|US, Canada}}/{{a|US}}/g' \
+  | sed 's/(\[\[GenAm]])/{{a|US}}/' \
+ \
+  | sed 's/|US and trad. English/|US/g' \
+  | sed 's/|USA/|US/g' \
+  | sed 's/|United States/|US/g' \
+  | sed 's/|General American/|US/g' \
+  | sed 's/|New England/|US/g' \
+  | sed 's/|Eastern New England/|US/g' \
+  | sed 's/|GenAm/|US/g' \
+  | sed 's/|GenAM/|US/g' \
+  | sed 's/|GAm/|US/g' \
+  | sed 's/|GA/|US/g' \
+  | sed 's/|Canada/|US/g' \
+  | sed 's/|Can/|US/g' \
+  | sed 's/|CA/|US/g' \
+  | sed 's/|Southern US/|US/g' \
+  | sed 's/|Southern American English/|US/' \
+  | sed 's/|southern US/|US/g' \
+  | sed 's/|Southern/|US/g' \
+  | sed 's/|Northern US/|US/g' \
+  | sed 's/|northern US/|US/g' \
+  | sed 's/|New York City/|US/g' \
+  | sed 's/|NYC/|US/g' \
+  | sed 's/|Jewish/|US/' \
+  | sed 's/|NY/|US/' \
+  | sed 's/|English/|US/g' \
+  | sed 's/|Standard Hawaiian English/|US/g' \
+  | sed 's/|T.flapping/|US/g' \
+  | sed 's/|Spanish/|US/g' \
+  | sed 's/|Caribbean/|US/g' \
+ \
+  | sed 's/|Commonwealth/|UK/g' \
+  | sed 's/|Received Pronunciation/|UK/g' \
+  | sed 's/|UK English/|UK/g' \
+  | sed 's/|UK, Scotland/|UK/' \
+  | sed 's/|RP/|UK/g' \
+  | sed 's/|Northern England/|UK/g' \
+  | sed 's/|Southern England/|UK/g' \
+  | sed 's/|Cockney/|UK/g' \
+  | sed 's/|Scotland/|UK/g' \
+  | sed 's/|Ireland/|UK/g' \
+  | sed 's/|Macquarie Dictionary/|UK/' \
+  | sed 's/|Wales/|UK/g' \
+  | sed 's/|Welsh/|UK/g' \
+  | sed 's/|Armenian/|UK/g' \
+  | sed 's/|England/|UK/g' \
+  | sed 's/|Australian/|UK/g' \
+  | sed 's/|Australia/|UK/g' \
+  | sed 's/|Austr/|UK/g' \
+  | sed 's/|AUS/|UK/g' \
+  | sed 's/|AusE/|UK/g' \
+  | sed 's/|Aus/|UK/g' \
+  | sed 's/|General Australian/|UK/g' \
+  | sed 's/|AuE/|UK/g' \
+  | sed 's/|AU/|UK/g' \
+  | sed 's/|British Isles/|UK/g' \
+  | sed 's/|British/|UK/g' \
+  | sed 's/|New Zealand/|UK/g' \
+  | sed 's/|NZ/|UK/g' \
+  | sed 's/|Uk/|UK/g' \
+  | sed 's/|South African/|UK/g' \
+  | sed 's/|South Africa/|UK/g' \
+  | sed 's/|S Africa/|UK/g' \
+  | sed 's/|SAfrica/|UK/g' \
+  | sed 's/|Hindustani/|UK/g' \
+  | sed 's/|InE/|UK/g' \
+  | sed 's/|IE/|UK/g' \
+  | sed 's/|Singapore English/|UK/g' \
+  | sed 's/|Singapore/|UK/g' \
+  | sed 's/|India/|UK/g' \
+  | sed 's/|Italian/|UK/g' \
+  | sed 's/|General New Zealand/|UK/g' \
+  | sed 's/|Irish/|UK/g' \
+  | sed 's/|Greek/|UK/g' \
+  | sed 's/|Bristolian/|UK/g' \
+  | sed 's/|French/|UK/g' \
+  | sed 's/|Classical Latin/|UK/g' \
+  | sed 's/|Classical/|UK/g' \
+  | sed 's/|Tasmanian/|UK/g' \
+  | sed 's/|SIN/|UK/g' \
+  | sed 's/|Midlands/|UK/g' \
+  | sed 's/|Geordie/|UK/g' \
+  | sed 's/|Hong Kong/|UK/g' \
+  | sed 's/|Canadian Shift/|UK/g' \
+  | sed 's/|Northern Cities Vowel Shift/|UK/' \
+  | sed 's/|Germanic/|UK/g' \
+  | sed 's/|US|Appalachia/|UK/g' \
+  | sed 's/|FR/|UK/g' \
+ \
+  | sed 's/|UK|US/|US/g' \
+  | sed 's/|US|UK/|US/g' \
+  | sed 's/|US|US/|US/g' \
+  | sed 's/|UK|UK|UK/|UK/g' \
+  | sed 's/|UK|UK/|UK/g' \
+  | sed 's/|UK|US/|US/g' \
+  | sed 's/|US|UK/|US/g' \
+  | sed 's/{{a|US}}[ ]*{{a|US}}/{{a|US}}/' \
+  | sed 's/{{a|UK}}[ ]*{{a|US}}/{{a|US}}/' \
+ \
+  | sed 's/ noun[ ]*noun[ ]*noun / noun /g' \
+  | sed 's/ noun[ ]*noun / noun /g' \
+  | sed 's/ verb[ ]*verb[ ]*verb / verb /g' \
+  | sed 's/ verb[ ]*verb / verb /g' \
+  | sed 's/ adjective[ ]*adjective / adjective /g' \
+  | sed 's/ adverb[ ]*adverb / adverb /g' \
+ \
+  | sed 's/ verb[ ]*noun / noun verb /' \
+  | sed 's/ adjective[ ]*noun / noun adjective /' \
+  | sed 's/ adverb[ ]*noun / noun adverb /' \
+  | sed 's/ adjective[ ]*verb / verb adjective /' \
+  | sed 's/ adverb[ ]*verb / verb adverb /' \
+  | sed 's/ adverb[ ]*adjective / adjective adverb /' \
+ \
+  | sed 's/ noun[ ]*noun[ ]*noun / noun /g' \
+  | sed 's/ noun[ ]*noun / noun /g' \
+  | sed 's/ verb[ ]*verb[ ]*verb / verb /g' \
+  | sed 's/ verb[ ]*verb / verb /g' \
+  | sed 's/ adjective[ ]*adjective / adjective /g' \
+  | sed 's/ adverb[ ]*adverb / adverb /g' \
+ \
+  | sed 's/ verb[ ]*noun / noun verb /' \
+  | sed 's/ adjective[ ]*noun / noun adjective /' \
+  | sed 's/ adverb[ ]*noun / noun adverb /' \
+  | sed 's/ adjective[ ]*verb / verb adjective /' \
+  | sed 's/ adverb[ ]*verb / verb adverb /' \
+  | sed 's/ adverb[ ]*adjective / adjective adverb /' \
+  | sed 's/ noun[ ]*verb[ ]*noun / noun verb /' \
+ \
+  | sed 's/ noun[ ]*noun[ ]*noun / noun /g' \
+  | sed 's/ noun[ ]*noun / noun /g' \
+  | sed 's/ verb[ ]*verb[ ]*verb / verb /g' \
+  | sed 's/ verb[ ]*verb / verb /g' \
+  | sed 's/ adjective[ ]*adjective / adjective /g' \
+  | sed 's/ adverb[ ]*adverb / adverb /g' \
+ \
+  | sed 's/ verb[ ]*noun / noun verb /' \
+  | sed 's/ adjective[ ]*noun / noun adjective /' \
+  | sed 's/ adverb[ ]*noun / noun adverb /' \
+  | sed 's/ adjective[ ]*verb / verb adjective /' \
+  | sed 's/ adverb[ ]*verb / verb adverb /' \
+  | sed 's/ adverb[ ]*adjective / adjective adverb /' \
+ \
+  | sed 's/\*/ /g' \
+  | sed 's/}:/}/g' \
+  | sed 's/ : / /g' \
+  | sed 's/>\./>/' \
+  | sed 's/>,/>/' \
+  | sed 's/>;/>/' \
+  | sed 's/&lt;/</g' \
+  | sed 's/&gt;/>/g' \
+ \
+  | sed 's/<ref[^<]*<\/ref>//g' \
+  | sed 's/<ref[^\/]*\/>//g' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\),[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\({{a|US}}[^{]*\){{a|UK}}[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\/<\/ipa>[ ]*+[ ]*<ipa>\//./' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\),[ ]*rarely[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*or[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*or sometimes[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*\x27\x27or\x27\x27[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*also[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*rarely[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+ \
+  | sed 's/{{attention[^}]*}}//g' \
+  | sed 's/<\/ipa>[ ]*{{a|weak vowel[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|pin.pen[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|ae.tensing[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/g' \
+  | sed 's/<\/ipa>[ ]*{{a|rhotic[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|nonrhotic[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|cot.caught[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|Canada|cot-caught[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|US|also[^<]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+ \
+  | sed 's/\({{a|US}}[^{]*\){{a|US}}[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+  | sed 's/{{a|UK}}[^{]*{{a|US}}/{{a|US}}/' \
+  | sed 's/<\/ipa>[ ]*{{a|UK}}[ ]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/<\/ipa>[ ]*{{a|UK}}[ ]*<ipa>[^<]*<\/ipa>/<\/ipa>/' \
+  | sed 's/{{a|UK}}[^{]*{{a|US}}/{{a|US}}/' \
+  | sed 's/<text>[ ]*<ipa>[^<]*<\/ipa>[ ]*[^{]*{{a|US}}/<text> {{a|US}}/' \
+  | sed 's/\(<ipa>[^<]*<\/ipa>\)[ ]*<ipa>[^<]*<\/ipa>/\1/' \
+ \
+  | sed 's/ noun[ ]*noun / noun /g' \
+  | sed 's/ verb[ ]*verb / verb /g' \
+  | sed 's/>,/>/' \
+  | sed 's/ , / /' \
+  | sed '/^Thread:User/d' \
+  | sed '/^Wikisaurus:/d' \
+ \
+  | awk -f redirect.txt \
+  > wiki-words.txt
+
+./prep.txt

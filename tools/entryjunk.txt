@@ -1,0 +1,55 @@
+/<text>/ {
+  intext = 1;
+  english = 1;
+  print $0;
+}
+
+/<\/text>/ {
+  intext = 0;
+}
+
+/----/ {
+  english = 0;
+}
+
+/=English=/ {
+  print "english!!!";
+}
+
+/=Noun=/ {
+  if (english == 1)
+    print "noun";
+  else
+    next;
+}
+
+/=Verb=/ {
+  if (english == 1)
+    print "verb";
+  else
+    next;
+}
+
+/=Adjective=/ {
+  if (english == 1)
+    print "adjective";
+  else
+    next;
+}
+
+/=Adverb=/ {
+  if (english == 1)
+    print "adverb";
+  else
+    next;
+}
+
+// {
+  if (intext == 0)
+    print $0;
+  else
+    if ($0 ~ /IPA.*lang=en/)
+      print $0;
+    else
+      next;
+}

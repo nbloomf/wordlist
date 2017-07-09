@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for f in wiki/*.txt; do
+  sed -i 's/[ ]*<text>[ ]*//' $f
+  sed -i 's/[ ]*<\/text>[ ]*//' $f
+  sed -i 's/[ ]*<ipa>[ ]*//' $f
+  sed -i 's/[ ]*<\/ipa>[ ]*/\t/' $f
+  sed -i 's/{{a|US}}//' $f
+  sed -i 's/{{a|UK}}//' $f
+  sed -i 's/[[:space:]]*$//' $f
+done
